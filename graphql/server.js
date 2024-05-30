@@ -2,23 +2,13 @@ var express = require('express');
 var { createHandler } = require('graphql-http/lib/use/express');
 var { buildSchema } = require('graphql');
 const { defaultPlants } = require('./plants');
+const fs = require('fs');
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`  
-  type Query {
-    hello: String
-    quoteOfTheDay: String
-    random: Float!
-    rollThreeDice: [Int]
-    getMessage(id: ID!): Message
-    getMessages: [Message]
+  type Query {   
     plants: [Plant!]!
     beds: [Bed!]!
-  }
-
-  input MessageInput {
-    content: String
-    author: String
   }
 
   input PlantInput {
@@ -40,15 +30,7 @@ var schema = buildSchema(`
     y: Int
   }
 
-  type Message {
-    id: ID!
-    content: String
-    author: String
-  }
- 
-  type Mutation {
-    createMessage(input: MessageInput): Message
-    updateMessage(id: ID!, input: MessageInput): Message
+  type Mutation {  
     addPlant(input: PlantInput): Plant
     addBed(input: BedInput): Bed
     addPlantToBed(input: PlantBedInput): Bed
@@ -85,95 +67,68 @@ class Message {
   }
 }
 
-// Maps username to content
-var fakeDatabase = {};
-
+let beds = [];
 
 let plants = [
   {
-      id: '1',
-      name: 'tomato',
-      width: 2,
-      height: 2
-    },
-    {
-      id: '2',
-      name: 'okra',
-      width: 1,
-      height: 1
-    },
-    {
-        id: '3',
-        name: 'pepper-hot',
-        width: 1,
-        height: 1
-      },
-      {
-        id: '4',
-        name: 'eggplant',
-        width: 1,
-        height: 1
-      },
-      {
-        id: '5',
-        name: 'lettuce',
-        width: 1,
-        height: 1
-      }
+    id: '1',
+    name: 'tomato',
+    width: 2,
+    height: 2
+  },
+  {
+    id: '2',
+    name: 'okra',
+    width: 1,
+    height: 1
+  },
+  {
+    id: '3',
+    name: 'pepper-hot',
+    width: 1,
+    height: 1
+  },
+  {
+    id: '4',
+    name: 'eggplant',
+    width: 1,
+    height: 1
+  },
+  {
+    id: '5',
+    name: 'lettuce',
+    width: 1,
+    height: 1
+  }
 ];
 
-// let plants = [...defaultPlants];
+function saveData() {
+    const data = { plants, beds };
+    fs.writeFile('output.json', JSON.stringify(data, null, 2), (err) => {
+        if (err) {
+            console.log('There was an error writing the file', err);            
+        } else {
+            console.log('Successfully wrote to output.json');            
+        }
+    });
+}
 
-let beds = [];
+function initializeData() {    
+    fs.readFile('output.json', 'utf8', (err, data) => {
+        if (err) {
+            console.log('There was an error reading the file', err);
+            res.status(500).send('There was an error loading the data');
+        } else {
+            console.log('Successfully read from output.json');
+            const parsed = JSON.parse(data);            
+            plants = parsed.plants;
+            beds = parsed.beds;
+        }
+    });
+}
 
 // The root provides a resolver function for each API endpoint
-var root = {
-  hello() {
-    return 'Hello world!';
-  },
-  quoteOfTheDay() {
-    return Math.random() < 0.5 ? 'Take it easy' : 'Salvation lies within';
-  },
-  random() {
-    return Math.random();
-  },
-  rollThreeDice() {
-    return [1, 2, 3].map((_) => 1 + Math.floor(Math.random() * 6));
-  },
-  getMessage({ id }) {
-    if (!fakeDatabase[id]) {
-      throw new Error('no message exists with id ' + id);
-    }
-    return new Message(id, fakeDatabase[id]);
-  },
-  getMessages() {
-    const messages = [];
-    const entries = Object.entries(fakeDatabase);
-
-    for (let index = 0; index < entries.length; index++) {
-      const id = entries[index][0];
-      const value = entries[index][1];
-      messages.push({ ...value, id });
-    }
-
-    return messages;
-  },
-  createMessage({ input }) {
-    // Create a random id for our "database".
-    var id = require('crypto').randomBytes(10).toString('hex');
-
-    fakeDatabase[id] = input;
-    console.log(fakeDatabase);
-    return new Message(id, input);
-  },
-  updateMessage({ id, input }) {
-    if (!fakeDatabase[id]) {
-      throw new Error('no message exists with id ' + id);
-    }
-    // This replaces all old data, but some apps might want partial update.
-    fakeDatabase[id] = input;
-    return new Message(id, input);
-  },
+var root = {  
   plants: () => plants,
   beds: () => beds,
   addPlant: ({ input }) => {
@@ -183,6 +138,7 @@ var root = {
       ...input
     };
     plants.push(newItem);
+    saveData();
     return newItem;
   },
   addBed: ({ input }) => {
@@ -193,6 +149,7 @@ var root = {
       ...input
     };
     beds.push(newItem);
+    saveData();
     return newItem;
   },
   addPlantToBed: ({ input }) => {
@@ -201,23 +158,17 @@ var root = {
       const plantsCopy = [...beds[itemIndex].plants];
       plantsCopy.push({ plant: input.plant, x: input.x, y: input.y });
       beds[itemIndex].plants = plantsCopy;
+      saveData();
       return beds[itemIndex];
     } else {
       throw new Error('Item not found');
     }
-  },
-  modifyItem: (_, { id, name }) => {
-    const itemIndex = items.findIndex((item) => item.id === id);
-    if (itemIndex > -1) {
-      items[itemIndex].name = name;
-      return items[itemIndex];
-    } else {
-      throw new Error('Item not found');
-    }
-  }
+  },  
 };
 
 var app = express();
+
+initializeData();
 
 // Create and use the GraphQL handler.
 app.all(
