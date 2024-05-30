@@ -1,6 +1,7 @@
 var express = require('express');
 var { createHandler } = require('graphql-http/lib/use/express');
 var { buildSchema } = require('graphql');
+const { defaultPlants } = require('./plants');
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`  
@@ -27,6 +28,7 @@ var schema = buildSchema(`
   }
 
   input BedInput {
+    name: String
     width: Int
     height: Int
   }
@@ -66,7 +68,8 @@ var schema = buildSchema(`
   }
 
   type Bed {
-    id: ID!    
+    id: ID!
+    name: String
     width: Int
     height: Int
     plants: [PlantBed!]!
@@ -85,20 +88,41 @@ class Message {
 // Maps username to content
 var fakeDatabase = {};
 
+
 let plants = [
   {
-    id: '1',
-    name: 'tomato',
-    width: 2,
-    height: 2
-  },
-  {
-    id: '2',
-    name: 'okra',
-    width: 1,
-    height: 1
-  }
+      id: '1',
+      name: 'tomato',
+      width: 2,
+      height: 2
+    },
+    {
+      id: '2',
+      name: 'okra',
+      width: 1,
+      height: 1
+    },
+    {
+        id: '3',
+        name: 'pepper-hot',
+        width: 1,
+        height: 1
+      },
+      {
+        id: '4',
+        name: 'eggplant',
+        width: 1,
+        height: 1
+      },
+      {
+        id: '5',
+        name: 'lettuce',
+        width: 1,
+        height: 1
+      }
 ];
+
+// let plants = [...defaultPlants];
 
 let beds = [];
 

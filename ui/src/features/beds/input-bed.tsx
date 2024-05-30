@@ -44,7 +44,10 @@ function InputBed() {
           <CardBody>
             <Typography variant="h5" color="blue-gray" className="mb-2">
               Add a new garden bed
-            </Typography>            
+            </Typography>
+            <div className="m-3">
+              <Input color="gray" name="name" required label="Bed Name" size="lg" />
+            </div>
             <div className="m-3">
               <Input color="gray" name="width" required type="number" label="Width" max={8} min={1} size="lg" />
             </div>

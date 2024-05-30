@@ -50,7 +50,6 @@ function InputPlant() {
             <div className="m-3">
               <Input color="gray" name="name" required label="Plant Name" size="lg" />
             </div>
-
             <div className="m-3">
               <Input color="gray" name="width" required type="number" label="Width" size="lg" />
             </div>

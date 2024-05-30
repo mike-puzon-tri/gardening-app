@@ -5,6 +5,7 @@ export const GET_BEDS = gql`
   query {
     beds {
       id
+      name
       width
       height
       plants {
@@ -27,7 +28,7 @@ function BedList() {
       <h4>Garden Beds</h4>
       {data.beds.map((item) => (
         <p key={item.id} className="">
-          {item.id} ({item.width} x {item.height})
+          {item.name} ({item.width} x {item.height})
           <GardenBed height={item.height} width={item.width} bedId={item.id} plants={item.plants} />
         </p>
       ))}
