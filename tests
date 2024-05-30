@@ -1,0 +1,26 @@
+set -eux
+
+echo "testing api"
+if git diff --name-only HEAD origin/main | grep "api/"
+then
+  cd api/
+  tox
+  cd ..
+fi
+
+echo "testing ui"
+if git diff --name-only HEAD origin/main | grep "ui/"
+then
+  cd ui/
+  pnpm install
+  pnpm run lint
+  pnpm run typecheck
+  CI=true pnpm test
+  rm -rf node_modules
+  cd ..
+fi
+
+echo "ensuring openapi generated client is up to date"
+openapi-generator-cli version-manager set 6.6.0
+openapi-generator-cli generate --global-property=skipFormModel=false --additional-properties=supportsES6=true,modelPropertyNaming=original -g typescript-axios -o openapi_check_dir -i openapi.json
+diff openapi_check_dir ui/src/interface

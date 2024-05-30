@@ -1,0 +1,23 @@
+services:
+  api:
+    build:
+      context: .
+      target: api
+    env_file: # note that this takes lower precedent than "environment: "
+      - app/.env
+    develop:
+      watch:
+        - action: sync
+          path: ./app/
+          target: /app/app
+        - action: rebuild
+          path: pyproject.toml
+        - action: rebuild
+          path: Dockerfile
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8080/api" ]
+      interval: 1s
+      timeout: 1s
+      retries: 5

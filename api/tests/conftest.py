@@ -1,0 +1,23 @@
+import pytest
+from fastapi.testclient import TestClient
+
+from app.main import app
+from app.settings import settings
+
+
+def pytest_configure():
+    """Global test variables"""
+    pytest.bearer_token = (
+        "Bearer"
+        " eyJraWQiOiJyVjZaRENPcEVGOFhzcTNqelVhNlQwQUlmSHRwcnNjWE9ZbnlPUVdOZXQ4PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMjA1ZmU2Ny01YjRhLTQ4NmUtOTlmYy0wMjQ5NDQ2YTQ4MDUiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfem5UM3Y2WENHIiwiY29nbml0bzp1c2VybmFtZSI6ImNocmlzLmZhamFyZG9AdHJpLmdsb2JhbCIsIm9yaWdpbl9qdGkiOiJiNDY1MmY4Mi04OWM3LTQwM2UtOTMyYS03NjgxNTBmYjA4ZjQiLCJhdWQiOiIyaW0zYmhuNzExbTU0a2JmMmM1dml2Z2ZvMyIsImV2ZW50X2lkIjoiYjgyNmQ4MzItZDY4Ni00MDU3LTljOGYtMzMwZTAxNzQxMTJmIiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE2ODEyNTcwMzYsImV4cCI6MTY4MTI2MDYzNiwiaWF0IjoxNjgxMjU3MDM2LCJqdGkiOiIwYjMyY2RiNC00OWUzLTRlZmMtODgzZC0zY2JmZGJhNjhjY2IiLCJlbWFpbCI6ImNocmlzLmZhamFyZG9AdHJpLmdsb2JhbCJ9.q_xKUz6L7qrHeJ2hHpfwfXHum7bHk0se6wVScKfIuBgDo2xsOZ5mHfvEZCtR34tTy24Spc8PU5dpDyY0ESrZ7I7vL0kXhz1HwhLCdJbkntFQJ5cl5ioLAx5sd-DpHbUnL71Fk5MMfHkk7oPTQ931dnQgHYEPyxj4PtKinxntllrwzpGAF4meb9_CnOOqxgscrmjZdO2zmKbd50qyAvsj9qkxwSq-ZSorw3LHuGN1nKUwcMK8jSp8IK0KFIC3yjnEGy054riVOcT7_PHmUYDOMyfM-v0mAMIxQ3af1ZpVK-Hm-cixQH55gQ98kvteOrtjggnpYy8qzJ-8q0ZqEvdi2Q"
+    )
+    pytest.userid = "2205fe67-5b4a-486e-99fc-0249446a4805"
+
+    # ensure fresh settings
+    settings.default_username = "TEST_USER"
+    settings.default_age = 1234567
+
+
+@pytest.fixture(scope="session")
+def mocked_fastapi_app():
+    return TestClient(app)

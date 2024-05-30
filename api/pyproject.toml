@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dna_example_web_app"
+version = "0.0.0"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  # fastapi
+  "fastapi",
+  "uvicorn",
+  "pydantic",
+  "pydantic-settings",
+  "python-dotenv",
+
+  # jwt token
+  "python-jose[cryptography]",
+
+  # aws batch
+  "boto3",
+  "torch"  # just to verify GPU
+]
+
+[project.optional-dependencies]
+dev = [
+  # for command running
+  "tox-uv",
+  "tox-current-env",
+
+  # for unit tests
+  "pytest",
+  "pytest-cov",
+  "httpx",
+
+  # for format / linting
+  "ruff",
+
+  # security
+  "bandit",
+
+  # type checking
+  "pyright"
+]
+
+[tool.setuptools.packages.find]
+include = ['app*']
+
+[tool.ruff]
+unsafe-fixes = true
+
+[tool.ruff.lint]
+ignore = ["E501", "D", "ANN", "ISC001", "COM812"]
+select = ["ALL"]
+fixable = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S"]
+
+[tool.pytest.ini_options]
+log_level = "WARNING"
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

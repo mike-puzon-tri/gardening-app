@@ -1,0 +1,15 @@
+services:
+  ui:
+    build:
+      context: .
+    ports:
+      - 3000:3000
+    develop:
+      watch:
+        - action: sync
+          path: ./
+          target: /usr/src/app
+        - action: rebuild
+          path: package.json
+        - action: rebuild
+          path: Dockerfile

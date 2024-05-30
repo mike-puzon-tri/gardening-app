@@ -1,0 +1,42 @@
+include:
+  - api/compose.yaml
+  - ui/compose.yaml
+
+services:
+  generate_openapi_json:
+    image: curlimages/curl:latest
+    profiles:
+      - generate_openapi
+    volumes:
+      - ./:/local
+    command:
+      - http://api:8080/api
+      - -o
+      - /local/openapi.json
+    depends_on:
+      api:
+        condition: service_healthy
+        restart: true
+
+  generate_openapi_client:
+    image: openapitools/openapi-generator-cli:v6.6.0
+    profiles:
+      - generate_openapi
+    volumes:
+      - ./:/local
+    command:
+      - generate
+      - --global-property=skipFormModel=false
+      - --additional-properties=supportsES6=true,modelPropertyNaming=original
+      - -g
+      - typescript-axios
+      - -o
+      - /local/ui/src/interface
+      - -i
+      - /local/openapi.json
+    depends_on:
+      api:
+        condition: service_healthy
+        restart: true
+      generate_openapi_json:
+        condition: service_started
