@@ -26,9 +26,16 @@ var schema = buildSchema(`
     height: Int
   }
 
-  input BedInput {    
+  input BedInput {
     width: Int
     height: Int
+  }
+
+  input PlantBedInput {
+    bedId: String
+    plant: String
+    x: Int
+    y: Int
   }
 
   type Message {
@@ -41,7 +48,8 @@ var schema = buildSchema(`
     createMessage(input: MessageInput): Message
     updateMessage(id: ID!, input: MessageInput): Message
     addPlant(input: PlantInput): Plant
-    addBed(input: BedInput): Bed    
+    addBed(input: BedInput): Bed
+    addPlantToBed(input: PlantBedInput): Bed
   }
 
   type Plant {
@@ -51,11 +59,17 @@ var schema = buildSchema(`
     height: Int
   }
 
+  type PlantBed {
+    plant: String
+    x: Int
+    y: Int
+  }
+
   type Bed {
     id: ID!    
     width: Int
     height: Int
-    plants: [Plant!]!    
+    plants: [PlantBed!]!
   }
 `);
 
@@ -156,6 +170,17 @@ var root = {
     };
     beds.push(newItem);
     return newItem;
+  },
+  addPlantToBed: ({ input }) => {
+    const itemIndex = beds.findIndex((item) => item.id === input.bedId);
+    if (itemIndex > -1) {
+      const plantsCopy = [...beds[itemIndex].plants];
+      plantsCopy.push({ plant: input.plant, x: input.x, y: input.y });
+      beds[itemIndex].plants = plantsCopy;
+      return beds[itemIndex];
+    } else {
+      throw new Error('Item not found');
+    }
   },
   modifyItem: (_, { id, name }) => {
     const itemIndex = items.findIndex((item) => item.id === id);

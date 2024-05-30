@@ -4,11 +4,13 @@ import GardenBed from './garden-bed';
 export const GET_BEDS = gql`
   query {
     beds {
-      id      
+      id
       width
       height
       plants {
-        name
+        plant
+        x
+        y
       }
     }
   }
@@ -20,14 +22,13 @@ function BedList() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
 
-  console.log(data);
   return (
     <div>
       <h4>Garden Beds</h4>
       {data.beds.map((item) => (
-        <p key={item.id} className=''>
+        <p key={item.id} className="">
           {item.id} ({item.width} x {item.height})
-          <GardenBed height={item.height} width={item.width} />
+          <GardenBed height={item.height} width={item.width} bedId={item.id} plants={item.plants} />
         </p>
       ))}
     </div>

@@ -22,7 +22,7 @@ function PlantList() {
     <div>
       <h4>Available Plants</h4>
       {data.plants.map((item) => (
-        <p key={item.id} className='flex flex-row my-2 items-center	'>
+        <p key={item.id} className='flex flex-row my-2 items-center	text-lg'>
           <PlantImage name={item.name} />
           {item.name} ({item.width} x {item.height})
         </p>
